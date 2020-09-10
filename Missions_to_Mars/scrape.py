@@ -15,7 +15,6 @@ def scrape():
     final_data["mars_news"] = output[0]
     final_data["mars_paragraph"] = output[1]
     final_data["mars_image"] = marsImage()
-    final_data["mars_weather"] = marsWeather()
     final_data["mars_facts"] = marsFacts()
     final_data["mars_hemisphere"] = marsHem()
 
