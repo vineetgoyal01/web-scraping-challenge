@@ -2,11 +2,12 @@ from splinter import Browser
 from bs4 import BeautifulSoup
 import pandas as pd
 import time 
-
+from webdriver_manager.chrome import ChromeDriverManager
+from time import sleep
 #Site Navigation
+
 executable_path = {'executable_path': ChromeDriverManager().install()}
 browser = Browser("chrome", **executable_path, headless=False)
-
 
 # Defining scrape & dictionary
 def scrape():
@@ -26,15 +27,15 @@ def marsNews():
     # Visit the NASA Mars News Site
     news_url = "https://mars.nasa.gov/news/"
     browser.visit(news_url)
-
+    sleep(1)
     # Results HTML with BeautifulSoup
     html = browser.html
     soup = BeautifulSoup(html, "html.parser")
 
     # Scrape the latest News Title and latest Paragraph Text
-    article = soup.find("div", class_='list_text')
-    news_title = article.find("div", class_="content_title").text
-    news_p = article.find("div", class_ ="article_teaser_body").text
+    article = soup.select_one("ul.item_list li.slide")
+    news_title = article.find("div", class_="content_title").get_text()
+    news_p = article.find("div", class_ ="article_teaser_body").get_text()
     output = [news_title, news_p]
     return output
 
@@ -71,12 +72,13 @@ def marsHem():
     # Visit the USGS Astrogeology Science Center Site
     hemispheres_url = "https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars"
     browser.visit(hemispheres_url)
+    sleep(2)
     html = browser.html
     soup = BeautifulSoup(html, "html.parser")
     mars_hemisphere = []
 
     products = soup.find("div", class_ = "result-list" )
-    hemispheres = products.find_all("div", class_="item")
+    hemispheres = products.find("div", class_="item")
 
     # Iterate through the List of All Hemispheres
     for hemisphere in hemispheres:
@@ -85,6 +87,7 @@ def marsHem():
         end_link = hemisphere.find("a")["href"]
         image_link = "https://astrogeology.usgs.gov/" + end_link    
         browser.visit(image_link)
+        sleep(1)
         html = browser.html
         soup=BeautifulSoup(html, "html.parser")
         downloads = soup.find("div", class_="downloads")
@@ -92,3 +95,8 @@ def marsHem():
         dictionary = {"title": title, "img_url": image_url}
         mars_hemisphere.append(dictionary)
     return mars_hemisphere
+
+    # if running from command line, show the scraped data results
+if __name__ == "__main__":
+    result = scrape()
+    print(result)
